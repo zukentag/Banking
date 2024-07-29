@@ -8,5 +8,7 @@ import javax.sql.DataSource
 @Service
 class BankService (private val dataSource: BankDataSource) {
     fun getBanks() : Collection<Bank> = dataSource.getBanks()
+    fun getBank(accountNumber: String) : Bank = dataSource.getBank(accountNumber)
+    fun addBank(bank: Bank) : Bank = dataSource.addBank(bank)
 
 }
