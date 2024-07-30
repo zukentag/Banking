@@ -9,9 +9,8 @@ import org.springframework.boot.env.SpringApplicationJsonEnvironmentPostProcesso
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json
+import org.springframework.test.web.servlet.*
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -85,6 +84,37 @@ class BankControllerTest @Autowired constructor (
                 status { isBadRequest() }
 
             }
+    }
+
+    @Test
+    fun `should patch an bank with given accountNumber` (){
+
+        val accountNumber = "HDFC"
+        val patchDetails =  Bank(accountNumber,1.22,1.233)
+
+        mockMvc.patch("/api/banks/$accountNumber") {
+            contentType=MediaType.APPLICATION_JSON
+            content=ObjectMapper().writeValueAsString(patchDetails)
+        }
+            .andDo { print() }
+            .andExpect {
+                status { isOk() }
+                content { contentType(MediaType.APPLICATION_JSON) }
+            }
+        mockMvc.get("/api/banks/$accountNumber")
+            .andExpect { content { json(objectMapper.writeValueAsString(patchDetails)) } }
+    }
+
+    @Test
+    fun `should delete a bank with given accountNumber` () {
+        val accountNumber="HDFC"
+
+        mockMvc.delete("/api/banks/$accountNumber")
+            .andDo { print() }
+            .andExpect { status { isNoContent() } }
+
+        mockMvc.get("/api/banks/$accountNumber")
+            .andExpect { status { isNotFound() } }
     }
 
 }
